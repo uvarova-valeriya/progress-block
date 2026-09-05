@@ -6,20 +6,22 @@
   const animateToggle = document.getElementById('animateToggle');
   const hideToggle = document.getElementById('hideToggle');
 
-  const radius = 54;
-  const circumference = 2 * Math.PI * radius;
+  const MIN_VALUE = 0;
+  const MAX_VALUE = 100;
+  const RADIUS = 54;
+  const circumference = 2 * Math.PI * RADIUS;
 
   progressFg.style.strokeDasharray = circumference;
   progressFg.style.strokeDashoffset = circumference;
 
-  let currentValue = 0;
+  let currentValue = MIN_VALUE;
   let isAnimated = false;
   let isHidden = false;
 
   function updateProgress(value) {
-    const clamped = Math.min(100, Math.max(0, Number(value) || 0));
+    const clamped = Math.min(MAX_VALUE, Math.max(MIN_VALUE, Number(value) || MIN_VALUE));
     currentValue = clamped;
-    const offset = circumference - (clamped / 100) * circumference;
+    const offset = circumference - (clamped / MAX_VALUE) * circumference;
     progressFg.style.strokeDashoffset = offset;
     if (valueInput.value !== String(clamped)) {
       valueInput.value = clamped;
@@ -41,11 +43,12 @@
   }
 
   valueInput.addEventListener('input', function () {
-    let val = parseInt(this.value, 10);
-    if (isNaN(val)) val = 0;
-    if (val < 0) val = 0;
-    if (val > 100) val = 100;
-    updateProgress(val);
+    const val = parseInt(this.value, 10);
+    if (isNaN(val)) {
+      updateProgress(MIN_VALUE);
+      return;
+    }
+    updateProgress(Math.min(MAX_VALUE, Math.max(MIN_VALUE, val)));
   });
 
   animateToggle.addEventListener('change', function () {
@@ -58,7 +61,7 @@
     updateStates();
   });
 
-  updateProgress(0);
+  updateProgress(MIN_VALUE);
   updateStates();
 
 })();
